@@ -1,4 +1,6 @@
 dataset
+wandb
+DataFiles.rar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
