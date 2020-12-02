@@ -1,6 +1,6 @@
 # Responsible for running the training, saving checkpoints and updating the graphs
 # Followed the Intro to Keras example: https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV#scrollTo=gUaHHRYo3cuo
-from tensorflow.keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping
 
 from CNN.model import Model
 from CNN.dataloader import DataLoader, get_chosen_bricks_list
@@ -43,8 +43,8 @@ class Trainer():
     def overwrite_configs(self, cfg):
         """Feel free to overwrite any of the configurations"""
         cfg.epochs = 1
-        cfg.image_size = 100
-        cfg.name = "Deleteme" # Here you can change the name of the run, leave empty or do not change if you want a random name
+        #cfg.image_size = 100
+        cfg.name = "" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
         return cfg
 
@@ -53,8 +53,10 @@ class Trainer():
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
         cfg.image_size = 400
 
-        cfg.model_type = "simplest" # [simplest, VG16_transfer_learning]
+        cfg.model_type = "VG16_transfer_learning" # [simplest, VG16_transfer_learning]
         cfg.optimizer = 'sgd' # [sgd, adam, adagrad]
+        cfg.channels = 3 # has to be 3 for transfer learning
+        cfg.dense_layer_units = 1 # for transfer learning
 
         cfg.num_classes = 10 # changing it does not do much
         cfg.learning_rate = 0.01
@@ -76,12 +78,13 @@ class Trainer():
             img = pic.copy()
 
             # Get predictions for the lego brick
-            prediction = cnn_model.predict(pic.reshape(1, cfg.image_size, cfg.image_size, 1))[0]
+            prediction = cnn_model.predict(pic.reshape(1, cfg.image_size, cfg.image_size, self.cfg.channels))[0]
 
             # Do lots of magic so it is possible to show it in wandb
             img = cv2.normalize(img, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
             img.astype(np.uint8)
-            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            if self.cfg.channels == 1:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
             img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_NEAREST)
 
             # Format predictions to string to overlay on image

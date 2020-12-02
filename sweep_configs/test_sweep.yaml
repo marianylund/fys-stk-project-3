@@ -1,4 +1,4 @@
-name: test_sweep
+name: VG16_transfer_learning_simple
 description: "This is just a test sweep, use this file as an example"
 program: train.py
 method: bayes
@@ -6,7 +6,28 @@ metric:
   name: accuracy
   goal: maximize
 parameters:
+  epochs:
+    distribution: int_uniform
+    min: 5
+    max: 20
+  batch_size:
+    distribution: int_uniform
+    min: 32
+    max: 160
+  image_size:
+    distribution: int_uniform
+    min: 100
+    max: 300
   learning_rate:
     distribution: uniform
     min: 0.005
     max: 0.02
+  dense_layer_units:
+    distribution: int_uniform
+    min: 10
+    max: 30
+  optimizer:
+    values:
+    - sgd
+    - adam
+    - adagrad

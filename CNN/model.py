@@ -1,13 +1,13 @@
 # Contains the structure on the network, forward and backwards passes
 import pathlib
 
-from tensorflow.keras.optimizers import Adam, Adagrad, SGD
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.optimizers import Adam, Adagrad, SGD
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 # Transfer learning:
 # https://keras.io/api/applications/
-from tensorflow.keras.applications import VGG16
+from keras.applications import VGG16
 
 class Model():
     def __init__(self, cfg):
@@ -44,19 +44,19 @@ class Model():
 
     def simplest(self):
         self.model = Sequential([
-            Flatten(input_shape=(self.cfg.image_size, self.cfg.image_size, 1)),
+            Flatten(input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels)),
             Dense(1, activation='relu'),
             Dense(10, activation='softmax'),
         ])    
 
     def VG16_transfer_learning(self):
-        vgg16 = VGG16(weights='imagenet', include_top=False, input_shape=(self.cfg.image_size, self.cfg.image_size, 1))
+        vgg16 = VGG16(weights='imagenet', include_top=False, input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels))
         vgg16.trainable = False # will not retrain the weights of the pretrained model
         #vgg16.summary()
         self.model = Sequential([
             vgg16,
             Flatten(),
-            Dense(1, activation='relu'),
+            Dense(self.cfg.dense_layer_units, activation='relu'),
             Dense(10, activation='softmax'),
         ])
         

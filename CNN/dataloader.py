@@ -8,7 +8,7 @@ import os, shutil
 from random import randint
 
 
-from tensorflow.keras.preprocessing import image
+from keras.preprocessing import image
 
 DATASET_PATH = pathlib.Path("dataset") # Downloaded images from https://www.kaggle.com/joosthazelzet/lego-brick-images?select=dataset
 OUTPUT_PATH = pathlib.Path("DataFiles")
@@ -19,6 +19,7 @@ class DataLoader():
     def __init__(self, cfg):
         self.cfg = cfg
         self.labels = get_chosen_bricks_list()
+        color_mode = "rgb" if cfg.channels == 3 else "grayscale"
         train_datagen = image.ImageDataGenerator(
                                     rescale = 1./255,
                                     rotation_range = 180,
@@ -36,7 +37,7 @@ class DataLoader():
                                     target_size = (cfg.image_size, cfg.image_size),
                                     batch_size = cfg.batch_size,
                                     class_mode = 'categorical',
-                                    color_mode='grayscale',
+                                    color_mode=color_mode,
                                     )
 
         self.validation_generator = train_datagen.flow_from_directory(
@@ -45,7 +46,7 @@ class DataLoader():
                                     target_size = (cfg.image_size, cfg.image_size),
                                     batch_size = cfg.batch_size,
                                     class_mode = 'categorical',
-                                    color_mode='grayscale',
+                                    color_mode=color_mode,
                                     )
 
         self.test_generator = test_datagen.flow_from_directory(
@@ -54,7 +55,7 @@ class DataLoader():
                                     target_size = (cfg.image_size, cfg.image_size),
                                     batch_size = 1,
                                     class_mode = 'categorical',
-                                    color_mode='grayscale',
+                                    color_mode=color_mode,
                                     shuffle=False,
                                     )
         #self.show_test_images()
