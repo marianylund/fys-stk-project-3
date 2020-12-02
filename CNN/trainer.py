@@ -24,7 +24,7 @@ class Trainer():
 
         early_stopping = EarlyStopping(monitor='val_accuracy', patience=self.cfg.early_stopping_patience, mode='auto', restore_best_weights=True)
         #define the model checkpoint callback -> this will keep on saving the model as a physical file
-        # model_checkpoint = ModelCheckpoint('fas_mnist_1.h5', verbose=1, save_best_only=True)
+        # model_checkpoint = ModelCheckpoint('fas_mnist_1.h5', verbose=1, save_best_only=True) #model = load_model('fas_mnist_1.h5') # to load the
         logging = WandbCallback(data_type="image", generator=self.dl.validation_generator, labels=get_chosen_bricks_list())
 
         history = self.model.fit(
@@ -53,8 +53,8 @@ class Trainer():
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
         cfg.image_size = 400
 
-        cfg.model_type = "simplest" # [simplest]
-        cfg.optimizer = 'sgd'
+        cfg.model_type = "simplest" # [simplest, VG16_transfer_learning]
+        cfg.optimizer = 'sgd' # [sgd, adam, adagrad]
 
         cfg.num_classes = 10 # changing it does not do much
         cfg.learning_rate = 0.01

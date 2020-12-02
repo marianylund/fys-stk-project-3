@@ -1,0 +1,12 @@
+name: test_sweep
+description: "This is just a test sweep, use this file as an example"
+program: train.py
+method: bayes
+metric:
+  name: accuracy
+  goal: maximize
+parameters:
+  learning_rate:
+    distribution: uniform
+    min: 0.005
+    max: 0.02

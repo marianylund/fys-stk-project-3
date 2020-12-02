@@ -6,6 +6,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 # Transfer learning:
+# https://keras.io/api/applications/
 from tensorflow.keras.applications import VGG16
 
 class Model():
@@ -29,11 +30,12 @@ class Model():
         else:
             raise Exception("Could not find optimizer: " + self.cfg.optimizer) 
         
-
     def choose_model(self):
         print("Model type: " + self.cfg.model_type)
         if(self.cfg.model_type == "simplest"):
             self.simplest()
+        elif self.cfg.model_type == "VG16_transfer_learning":
+            self.VG16_transfer_learning()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
@@ -57,3 +59,7 @@ class Model():
             Dense(1, activation='relu'),
             Dense(10, activation='softmax'),
         ])
+        
+    @staticmethod
+    def get_model_name(k):
+        return 'model_'+str(k)+'.h5'
