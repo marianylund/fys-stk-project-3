@@ -7,7 +7,7 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 # Transfer learning:
 # https://keras.io/api/applications/
-from keras.applications import VGG16
+from keras.applications import MobileNet
 
 class Model():
     def __init__(self, cfg):
@@ -50,7 +50,7 @@ class Model():
         ])    
 
     def VG16_transfer_learning(self):
-        vgg16 = VGG16(weights='imagenet', include_top=False, input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels))
+        vgg16 = MobileNet(weights='imagenet', include_top=False, input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels))
         vgg16.trainable = False # will not retrain the weights of the pretrained model
         #vgg16.summary()
         self.model = Sequential([
