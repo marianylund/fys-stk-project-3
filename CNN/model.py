@@ -1,6 +1,5 @@
 # Contains the structure on the network, forward and backwards passes
 import pathlib
-from yacs.config import CfgNode as CN
 
 from tensorflow.keras.optimizers import Adam, Adagrad, SGD
 from tensorflow.keras.models import Sequential

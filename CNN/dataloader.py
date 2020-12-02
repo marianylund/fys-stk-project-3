@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pylab as plt
 import pathlib
 import os, shutil
-from yacs.config import CfgNode as CN
 from random import randint
 
 

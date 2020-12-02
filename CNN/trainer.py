@@ -1,7 +1,6 @@
 # Responsible for running the training, saving checkpoints and updating the graphs
 # Followed the Intro to Keras example: https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV#scrollTo=gUaHHRYo3cuo
 from tensorflow.keras.callbacks import EarlyStopping
-from yacs.config import CfgNode as CN
 
 from CNN.model import Model
 from CNN.dataloader import DataLoader, get_chosen_bricks_list
