@@ -6,6 +6,7 @@ import matplotlib.pylab as plt
 import pathlib
 import os, shutil
 from yacs.config import CfgNode as CN
+from random import randint
 
 
 from tensorflow.keras.preprocessing import image
@@ -20,43 +21,76 @@ class DataLoader():
         self.cfg = cfg
         self.labels = get_chosen_bricks_list()
         train_datagen = image.ImageDataGenerator(
-                                    rescale = 1./255, 
-                                    shear_range = 0.2,
-                                    zoom_range = 0.2, 
+                                    rescale = 1./255,
+                                    rotation_range = 180,
+                                    #brightness_range=(0.7, 1.5), 
+                                    #zoom_range = 0.2, 
                                     vertical_flip = True,
-                                    horizontal_flip=True,
-                                    validation_split=0.2
+                                    horizontal_flip = True,
                                     )
+
+        test_datagen = image.ImageDataGenerator(rescale = 1./255)
 
         self.train_generator = train_datagen.flow_from_directory(
-                                    OUTPUT_PATH,
+                                    OUTPUT_PATH.joinpath("Train"),
+                                    classes = self.labels,
                                     target_size = (cfg.image_size, cfg.image_size),
                                     batch_size = cfg.batch_size,
                                     class_mode = 'categorical',
                                     color_mode='grayscale',
-                                    subset='training'
-                                    )
-        self.validation_generator = train_datagen.flow_from_directory(
-                                    OUTPUT_PATH,
-                                    target_size = (cfg.image_size, cfg.image_size),
-                                    batch_size = cfg.batch_size,
-                                    class_mode = 'categorical',
-                                    color_mode='grayscale',
-                                    subset='validation'
                                     )
 
-    # TODO: change it to actually take an image from a test set
-    def get_random_image_of_brick_reshaped(self, brick_name:str):
-        image = get_random_image_of_brick(brick_name)
-        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        self.validation_generator = train_datagen.flow_from_directory(
+                                    OUTPUT_PATH.joinpath("Validation"),
+                                    classes = self.labels,
+                                    target_size = (cfg.image_size, cfg.image_size),
+                                    batch_size = cfg.batch_size,
+                                    class_mode = 'categorical',
+                                    color_mode='grayscale',
+                                    )
+
+        self.test_generator = test_datagen.flow_from_directory(
+                                    OUTPUT_PATH.joinpath("Test"),
+                                    classes = self.labels,
+                                    target_size = (cfg.image_size, cfg.image_size),
+                                    batch_size = 1,
+                                    class_mode = 'categorical',
+                                    color_mode='grayscale',
+                                    shuffle=False,
+                                    )
+        #self.show_test_images()
+
+    def get_random_test_image(self, brick_name:str):
+        class_index = next(i for i in range(len(self.labels)) if brick_name in self.labels[i])
+        assert class_index != None, "Could not find class index for " + brick_name
+        return self.get_random_test_image_by_index(class_index)
     
-        # Resize image and normalize it
-        pic = cv2.resize(img, (self.cfg.image_size, self.cfg.image_size)).astype('float32') / 255
-        return pic, img
+    def get_random_test_image_by_index(self, class_index:int):
+        assert class_index >= 0 and class_index < self.cfg.num_classes, str(class_index) + " is out of class range"
+        img = self.test_generator[class_index * 8 + randint(0, 7)][0][0] # getting random image out of our test data
+        assert (img != None).all(), "Could not get img"
+        return img
+
+
+    def show_test_images(self):
+        arr = self.test_generator
+
+        plt.figure(figsize=(10,10))
+        for i in range(0, 10):
+            plt.subplot(2,5,i+1)
+            plt.xticks([])
+            plt.yticks([])
+            plt.grid(False)
+            slice_im = arr[i * 8][0][0]
+            backtorgb = cv2.cvtColor(slice_im, cv2.COLOR_GRAY2RGB)
+            plt.imshow(backtorgb, interpolation='nearest')
+            brick_name = (arr.filepaths[i*8]).split("\\")[-1].split(".")[0]
+            plt.xlabel(brick_name)
+        plt.show()
 
 def print_out_shape_of_design_matrix(self):
     print("steps_per_epoch ", len(self.train_generator))
-    print(" ? ", len(self.train_generator[0]))
+    print(" 0 image, 1 answer: ", len(self.train_generator[0]))
     print("Batch_size ", len(self.train_generator[0][0]))
     print("Image width", len(self.train_generator[0][0][0]))
     print("Image height", len(self.train_generator[0][0][0][0]))
@@ -64,7 +98,7 @@ def print_out_shape_of_design_matrix(self):
 
     print("Validation: ")
     print("steps_per_epoch ", len(self.validation_generator))
-    print(" ? ", len(self.validation_generator[0]))
+    print("0 image, 1 answer:", len(self.validation_generator[0]))
     print("Batch_size ", len(self.validation_generator[0][0]))
     print("Image width", len(self.validation_generator[0][0][0]))
     print("Image height", len(self.validation_generator[0][0][0][0]))
@@ -144,20 +178,74 @@ def delete_everything_in_directory(folder:str):
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-def copy_chosen_bricks_to_folders():
-        chosen_bricks_output = OUTPUT_PATH
+def copy_chosen_bricks_to_folders(test_dataset_size:float = 0.01, validation_dataset_size:float = 0.2, chosen_bricks_output:pathlib.Path = OUTPUT_PATH):
         chosen_bricks_output.mkdir(exist_ok=True, parents=True)
-        for brick_name in get_chosen_bricks_list():
-            brick_folder = chosen_bricks_output.joinpath(brick_name)
+        total_images = 800
+        number_of_test_images = int(total_images * test_dataset_size)
+        number_of_valid_images = int(total_images * validation_dataset_size)
+        number_of_train_images = int(total_images - (number_of_test_images + number_of_valid_images))
+        
+        print(f'Total images (per brick): {total_images}. Train: {number_of_train_images}, validation {number_of_valid_images}, test {number_of_test_images}')
+        assert number_of_test_images%2==0 and number_of_valid_images%2==0 and number_of_valid_images%2==0, "All number og images has to even (for left and right)"
+        
+        print("Dataset will be generated to ", chosen_bricks_output)
+        print(f"Generating train dataset. From {0} to {number_of_train_images} images")
+        new_path = chosen_bricks_output.joinpath("Train")
+        copy_images_for_each_brick(new_path, 0, number_of_train_images)
+        if validation_dataset_size > 0.0:
+            from_i = number_of_train_images
+            to_i = number_of_train_images + number_of_valid_images
+            print(f"Generating validation dataset. From {from_i} to {to_i} images")
+            new_path = chosen_bricks_output.joinpath("Validation")
+            copy_images_for_each_brick(new_path, from_i, to_i)
+        
+        if test_dataset_size > 0.0:
+            from_i = number_of_train_images + number_of_valid_images
+            to_i = number_of_train_images + number_of_valid_images + number_of_test_images
+            print(f"Generating test dataset. From {from_i} to {to_i} images")
+            new_path = chosen_bricks_output.joinpath("Test")
+            copy_images_for_each_brick(new_path, from_i, to_i)
+        
+def copy_images_for_each_brick(output_path:pathlib.Path, from_image:int, to_number_of_images:int):
+    output_path.mkdir(exist_ok=True, parents=True)
+    for brick_name in get_chosen_bricks_list():
+            brick_folder = output_path.joinpath(brick_name)
             brick_folder.mkdir(exist_ok=True, parents=True)
-            for i in range(400):
-                image_path = DATASET_PATH.joinpath(get_brick_image_name(brick_name, i, left = True))
-                shutil.copy(image_path, brick_folder)
-            for i in range(400):
-                image_path = DATASET_PATH.joinpath(get_brick_image_name(brick_name, i, left = False))
-                shutil.copy(image_path, brick_folder)
+            copy_images(brick_folder, brick_name, int(from_image/2), int(to_number_of_images/2), left = True)
+            copy_images(brick_folder, brick_name, int(from_image/2), int(to_number_of_images/2), left = False)
+
+def copy_images(brick_folder:pathlib.Path, brick_name:str, from_image:int, to_number_of_images:int, left:bool = True):
+    for i in range(from_image, to_number_of_images):
+        image_path = DATASET_PATH.joinpath(get_brick_image_name(brick_name, i, left = left))
+        shutil.copy(image_path, brick_folder)
 
 def print_status():
     print("Chosen bricks: ", get_chosen_bricks_list())
     show_all_chosen_bricks_as_images()
+
+# import wandb
+# import matplotlib.pylab as plt
+# if __name__ == "__main__":
+#     cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
+#     cfg.image_size = 100
+
+#     cfg.model_type = "simplest" # [simplest]
+#     cfg.optimizer = 'adam' # TODO: does not do anything yet, here just for reminder
+
+#     cfg.learning_rate = 0.01
+#     cfg.batch_size = 32
+#     cfg.epochs = 30
+#     cfg.num_classes = 10 # changing it does not do much
+#     cfg.early_stopping_patience = 5
+#     dl = DataLoader(cfg)
     
+#     pic = dl.get_random_test_image_by_index(0)
+#     img = pic
+#     img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_NEAREST)
+#     img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
+#     font = cv2.FONT_HERSHEY_DUPLEX
+#     cv2.putText(img, 'True Name', (10, 328), font, 0.5, (255,255,255))
+#     #img = cv2.cvtColor(dl.get_random_test_image("3004"), cv2.COLOR_GRAY2RGB)
+#     plt.imshow(img)
+#     plt.show()
+

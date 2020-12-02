@@ -9,6 +9,7 @@ import wandb
 from wandb.keras import WandbCallback
 import matplotlib.pyplot as plt
 from cv2 import cv2
+import numpy as np
 
 class Trainer():
     def __init__(self):
@@ -22,7 +23,9 @@ class Trainer():
         if self.cfg.notes != "":
             wandb.run.notes = self.cfg.notes
 
-        checkpoint = EarlyStopping(monitor='val_accuracy', patience=self.cfg.early_stopping_patience, mode='auto', restore_best_weights=True)
+        early_stopping = EarlyStopping(monitor='val_accuracy', patience=self.cfg.early_stopping_patience, mode='auto', restore_best_weights=True)
+        #define the model checkpoint callback -> this will keep on saving the model as a physical file
+        # model_checkpoint = ModelCheckpoint('fas_mnist_1.h5', verbose=1, save_best_only=True)
         logging = WandbCallback(data_type="image", generator=self.dl.validation_generator, labels=get_chosen_bricks_list())
 
         history = self.model.fit(
@@ -31,8 +34,8 @@ class Trainer():
             epochs = self.cfg.epochs,
             validation_data = self.dl.validation_generator,
             validation_steps=len(self.dl.validation_generator),
-            #validation_freq = 1,
-            callbacks=[checkpoint, logging]
+            validation_freq = 1,
+            callbacks=[early_stopping, logging]
         )
 
         #OBS! For now it predicts randomly on train or valid data, will fix test dataset later
@@ -40,8 +43,9 @@ class Trainer():
 
     def overwrite_configs(self, cfg):
         """Feel free to overwrite any of the configurations"""
-        cfg.epochs = 2
-        cfg.name = "SuchTestVeryNice" # Here you can change the name of the run, leave empty or do not change if you want a random name
+        cfg.epochs = 1
+        cfg.image_size = 100
+        cfg.name = "Deleteme" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
         return cfg
 
@@ -51,8 +55,9 @@ class Trainer():
         cfg.image_size = 400
 
         cfg.model_type = "simplest" # [simplest]
-        cfg.optimizer = 'nadam' # TODO: does not do anything yet, here just for reminder
+        cfg.optimizer = 'sgd'
 
+        cfg.num_classes = 10 # changing it does not do much
         cfg.learning_rate = 0.01
         cfg.batch_size = 32
         cfg.epochs = 30
@@ -64,21 +69,26 @@ class Trainer():
     def make_predictions(self, cnn_model:Model, dl:DataLoader, cfg):
         """Shows predicted images in w&b with their top 3 prediction names"""
         predicted_images = []
-        chosen_bricks = get_chosen_bricks_list()
+        chosen_bricks = dl.labels
         num_of_chosen_bricks = len(chosen_bricks)
         for i in range(num_of_chosen_bricks):
             brick_name = chosen_bricks[i]
-            pic, img = dl.get_random_image_of_brick_reshaped(brick_name)
+            pic = dl.get_random_test_image_by_index(i)
+            img = pic.copy()
+
             # Get predictions for the lego brick
             prediction = cnn_model.predict(pic.reshape(1, cfg.image_size, cfg.image_size, 1))[0]
+
+            # Do lots of magic so it is possible to show it in wandb
+            img = cv2.normalize(img, None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
+            img.astype(np.uint8)
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_NEAREST)
 
             # Format predictions to string to overlay on image
             text = sorted(['{:s} : {:.1f}%'.format(chosen_bricks[k].title(), 100*v) for k,v in enumerate(prediction)], 
                 key=lambda x:float(x.split(':')[1].split('%')[0]), reverse=True)[:3]
-            
-            # Upscale image
-            #img = cv2.resize(pic, (352, 352))
-            
+
             # Add text to image -  We add the true probabilities and predicted probabilities on each of the images in the test dataset
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(img, 'True Name : %s' % brick_name, (10, 328), font, 0.5, (255,255,255))
