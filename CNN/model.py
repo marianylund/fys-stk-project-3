@@ -4,7 +4,7 @@ import pathlib
 from keras.optimizers import Adam, Adagrad, SGD
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
-
+from keras.optimizers.schedules import ExponentialDecay
 # Transfer learning:
 # https://keras.io/api/applications/
 from keras.applications import MobileNetV2
@@ -21,6 +21,11 @@ class Model():
         print("Finished")
 
     def choose_optimizer(self):
+        if self.cfg.decay_rate == -1:
+            lr_schedule = self.cfg.learning_rate
+        lr_schedule = ExponentialDecay(initial_learning_rate=self.cfg.learning_rate,
+                                        decay_steps=self.cfg.decay_steps,
+                                        decay_rate=self.cfg.decay_rate)
         self.lr_schedule = self.cfg.learning_rate # TODO: lr schedulers https://keras.io/api/optimizers/learning_rate_schedules/
 
         if self.cfg.optimizer == "sgd" or self.cfg.optimizer == "sdg":
@@ -40,6 +45,8 @@ class Model():
             self.MobileNetV2_transfer_learning()
         elif self.cfg.model_type == "simple_NN":
             self.simple_NN()
+        elif self.cfg.model_type == "TripleV2":
+            self.TripleV2()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
@@ -70,6 +77,33 @@ class Model():
         self.model.add(Dense(50, activation=self.cfg.NN_act3, kernel_initializer = self.weight_init))
         
         self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
+
+    def TripleV2(self):
+        self.model = Sequential()
+        self.model.add(Conv2D(self.cfg.CNN_model_l1, (7, 7), activation = "tanh", input_shape = self.input_shape, kernel_initializer = self.weight_init))
+        self.model.add(MaxPooling2D(pool_size = (2,2)))
+        self.cfg.CNN_model_l1_size = 32
+        self.cfg.CNN_model_l2_size = 64
+        self.cfg.CNN_model_l3_size = 16
+
+        self.cfg.CNN_model_l1_count = 25
+        self.cfg.CNN_model_l2_count = 20
+        self.cfg.CNN_model_l3_count = 10
+
+        for i in range(self.cfg.CNN_model_l1_count, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l1_size, (5, 5), activation = "tanh", kernel_initializer = self.weight_init))
+            self.model.add(MaxPooling2D(pool_size = (2,2)))
+        for i in range(self.cfg.CNN_model_l2_count, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l2_size, (3, 3), activation = "tanh", kernel_initializer = self.weight_init))
+            self.model.add(MaxPooling2D(pool_size = (2,2)))
+        for i in range(self.cfg.CNN_model_l3_count, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l3_size, (1, 1), activation = "tanh", kernel_initializer = self.weight_init))
+        
+        self.model.add(GlobalAveragePooling2D())
+        self.model.add(Dense(1024, activation='relu', kernel_initializer = self.weight_init))
+        self.model.add(Dense(512, activation='relu', kernel_initializer = self.weight_init))
+        self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
+
 
     def Triple_model(self):
         self.cfg.CNN_model_l0_act = "relu"
