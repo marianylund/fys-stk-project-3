@@ -22,12 +22,4 @@ parameters:
     values: 
     - relu
     - tanh
-  NN_act2:
-    values: 
-    - relu
-    - tanh
-  NN_act3:
-    values: 
-    - relu
-    - tanh
     
