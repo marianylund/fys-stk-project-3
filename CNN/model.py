@@ -51,6 +51,19 @@ class Model():
             Dense(self.cfg.num_classes, activation='softmax'),
         ])
 
+    def simple_NN(self):
+        self.cfg.NN_act = "relu"
+
+        self.model = Sequential()
+        self.model.add(Dense(1024, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(800, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(512, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(400, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(200, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(50, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        
+        self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
+
     def Triple_model(self):
         self.cfg.CNN_model_l0_act = "relu"
         self.cfg.CNN_model_layers1 = 3
