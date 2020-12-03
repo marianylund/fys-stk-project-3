@@ -18,6 +18,10 @@ parameters:
     distribution: uniform
     min: 0.8
     max: 0.95
+  CNN_model_l0_count:
+    distribution: int_uniform
+    min: 25
+    max: 50
   CNN_model_l1_count:
     distribution: int_uniform
     min: 25

@@ -1,10 +1,10 @@
 # Contains the structure on the network, forward and backwards passes
 import pathlib
 
+import tensorflow as tf
 from keras.optimizers import Adam, Adagrad, SGD
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
-from keras.optimizers.schedules import ExponentialDecay
 # Transfer learning:
 # https://keras.io/api/applications/
 from keras.applications import MobileNetV2
@@ -23,7 +23,7 @@ class Model():
     def choose_optimizer(self):
         if self.cfg.decay_rate == -1:
             lr_schedule = self.cfg.learning_rate
-        lr_schedule = ExponentialDecay(initial_learning_rate=self.cfg.learning_rate,
+        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=self.cfg.learning_rate,
                                         decay_steps=self.cfg.decay_steps,
                                         decay_rate=self.cfg.decay_rate)
         self.lr_schedule = self.cfg.learning_rate # TODO: lr schedulers https://keras.io/api/optimizers/learning_rate_schedules/
@@ -79,16 +79,20 @@ class Model():
         self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
 
     def TripleV2(self):
-        self.model = Sequential()
-        self.model.add(Conv2D(self.cfg.CNN_model_l1, (7, 7), activation = "tanh", input_shape = self.input_shape, kernel_initializer = self.weight_init))
-        self.model.add(MaxPooling2D(pool_size = (2,2)))
+        self.cfg.CNN_model_l0_size = 32
         self.cfg.CNN_model_l1_size = 32
         self.cfg.CNN_model_l2_size = 64
         self.cfg.CNN_model_l3_size = 16
 
-        self.cfg.CNN_model_l1_count = 25
-        self.cfg.CNN_model_l2_count = 20
-        self.cfg.CNN_model_l3_count = 10
+        self.cfg.CNN_model_l1_count = 3
+        self.cfg.CNN_model_l2_count = 3
+        self.cfg.CNN_model_l3_count = 3
+
+        self.cfg.CNN_model_dropout = 0.2
+
+        self.model = Sequential()
+        self.model.add(Conv2D(self.cfg.CNN_model_l0_size, (7, 7), activation = "tanh", input_shape = self.input_shape, kernel_initializer = self.weight_init))
+        self.model.add(MaxPooling2D(pool_size = (2,2)))
 
         for i in range(self.cfg.CNN_model_l1_count, 1, -1):
             self.model.add(Conv2D(self.cfg.CNN_model_l1_size, (5, 5), activation = "tanh", kernel_initializer = self.weight_init))
@@ -98,6 +102,9 @@ class Model():
             self.model.add(MaxPooling2D(pool_size = (2,2)))
         for i in range(self.cfg.CNN_model_l3_count, 1, -1):
             self.model.add(Conv2D(self.cfg.CNN_model_l3_size, (1, 1), activation = "tanh", kernel_initializer = self.weight_init))
+            self.model.add(MaxPooling2D(pool_size = (2,2)))
+
+        self.model.add(Dropout(self.cfg.CNN_model_dropout))
         
         self.model.add(GlobalAveragePooling2D())
         self.model.add(Dense(1024, activation='relu', kernel_initializer = self.weight_init))
