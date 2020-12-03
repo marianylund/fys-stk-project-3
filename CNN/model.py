@@ -3,7 +3,7 @@ import pathlib
 
 from keras.optimizers import Adam, Adagrad, SGD
 from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
 
 # Transfer learning:
 # https://keras.io/api/applications/
@@ -13,6 +13,8 @@ class Model():
     def __init__(self, cfg):
         print("Start creating model")        
         self.cfg = cfg
+        self.input_shape = (self.cfg.image_size, self.cfg.image_size, self.cfg.channels)
+        self.weight_init = "glorot_normal" # TODO: choose
         self.choose_optimizer()
         self.choose_model()
         self.model.summary()
@@ -32,10 +34,10 @@ class Model():
         
     def choose_model(self):
         print("Model type: " + self.cfg.model_type)
-        if(self.cfg.model_type == "simplest"):
-            self.simplest()
-        elif self.cfg.model_type == "VG16_transfer_learning":
-            self.VG16_transfer_learning()
+        if(self.cfg.model_type == "Triple_model"):
+            self.Triple_model()
+        elif self.cfg.model_type == "MobileNetV2_transfer_learning":
+            self.MobileNetV2_transfer_learning()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
@@ -44,20 +46,51 @@ class Model():
 
     def simplest(self):
         self.model = Sequential([
-            Flatten(input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels)),
+            Flatten(input_shape=self.input_shape),
             Dense(1, activation='relu'),
-            Dense(10, activation='softmax'),
-        ])    
+            Dense(self.cfg.num_classes, activation='softmax'),
+        ])
 
-    def VG16_transfer_learning(self):
-        vgg16 = MobileNetV2(weights='imagenet', include_top=False, input_shape=(self.cfg.image_size, self.cfg.image_size, self.cfg.channels))
-        vgg16.trainable = False # will not retrain the weights of the pretrained model
-        #vgg16.summary()
+    def Triple_model(self):
+        self.cfg.CNN_model_layers1 = 3
+        self.cfg.CNN_model_l1 = 16
+        self.cfg.CNN_model_layers2 = 3
+        self.cfg.CNN_model_l2 = 32
+        self.cfg.CNN_model_layers3 = 3
+        self.cfg.CNN_model_l3 = 64
+        self.cfg.CNN_model_dropout = 0.2
+
+        self.model = Sequential()
+        self.model.add(Conv2D(self.cfg.CNN_model_l1, (5, 5), activation = "relu", input_shape = self.input_shape, kernel_initializer = self.weight_init))
+        self.model.add(MaxPooling2D(pool_size = (2,2)))
+
+        for i in range(self.cfg.CNN_model_layers1, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l1, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
+            self.model.add(MaxPooling2D(pool_size = (2,2)))
+        for i in range(self.cfg.CNN_model_layers2, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l2, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
+            self.model.add(MaxPooling2D(pool_size = (2,2)))
+        # for i in range(self.cfg.CNN_model_layers3, 1, -1):
+        #     self.model.add(Conv2D(self.cfg.CNN_model_l3, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
+        #     self.model.add(MaxPooling2D(pool_size = (2,2)))
+        
+        self.model.add(Dropout(self.cfg.CNN_model_dropout))
+
+        self.model.add(GlobalAveragePooling2D())
+        self.model.add(Dense(512, activation='relu', kernel_initializer = self.weight_init))
+        self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
+
+    def MobileNetV2_transfer_learning(self):
+        MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
+        MobileNetV2_layer.trainable = False # will not retrain the weights of the pretrained model
+        #MobileNetV2_layer.summary()
         self.model = Sequential([
-            vgg16,
-            Flatten(),
-            Dense(self.cfg.dense_layer_units, activation='relu'),
-            Dense(10, activation='softmax'),
+            MobileNetV2_layer,
+            GlobalAveragePooling2D(),
+            Dense(1024, activation='relu'),
+            Dense(1024, activation='relu'),
+            Dense(512, activation='relu'),
+            Dense(self.cfg.num_classes, activation='softmax'),
         ])
         
     @staticmethod

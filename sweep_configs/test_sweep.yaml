@@ -1,4 +1,4 @@
-name: VG16_transfer_learning_simple
+name: MobileNetV2_transfer_learning_simple
 description: "This is just a test sweep, use this file as an example"
 program: train.py
 method: bayes
