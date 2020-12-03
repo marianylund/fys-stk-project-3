@@ -1,0 +1,40 @@
+name: TrippleSweepModelStructure
+description: "Testing model's depth"
+program: train.py
+method: bayes
+metric:
+  name: val_accuracy
+  goal: maximize
+parameters:
+  learning_rate:
+    distribution: uniform
+    min: 0.005
+    max: 0.02
+  CNN_model_layers1:
+    distribution: int_uniform
+    min: 3
+    max: 30
+  CNN_model_layers2:
+    distribution: int_uniform
+    min: 3
+    max: 30
+  CNN_model_layers3:
+    distribution: int_uniform
+    min: 3
+    max: 30
+  CNN_model_l0_act:
+    values: 
+    - relu
+    - tanh
+  CNN_model_l1_act:
+    values: 
+    - relu
+    - tanh
+  CNN_model_l2_act:
+    values: 
+    - relu
+    - tanh
+  CNN_model_l3_act:
+    values: 
+    - relu
+    - tanh

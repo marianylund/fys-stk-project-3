@@ -42,7 +42,7 @@ class Trainer():
 
     def overwrite_configs(self, cfg):
         """Feel free to overwrite any of the configurations"""
-        cfg.epochs = 10
+        cfg.epochs = 20
         cfg.image_size = 224
         cfg.learning_rate = 0.001
         cfg.channels = 1

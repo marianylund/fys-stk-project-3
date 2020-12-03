@@ -52,31 +52,35 @@ class Model():
         ])
 
     def Triple_model(self):
+        self.cfg.CNN_model_l0_act = "relu"
         self.cfg.CNN_model_layers1 = 3
-        self.cfg.CNN_model_l1 = 16
+        self.cfg.CNN_model_l1 = 32
+        self.cfg.CNN_model_l1_act = "relu"
         self.cfg.CNN_model_layers2 = 3
-        self.cfg.CNN_model_l2 = 32
+        self.cfg.CNN_model_l2 = 64
+        self.cfg.CNN_model_l2_act = "relu"
         self.cfg.CNN_model_layers3 = 3
-        self.cfg.CNN_model_l3 = 64
+        self.cfg.CNN_model_l3 = 16
+        self.cfg.CNN_model_l3_act = "relu"
         self.cfg.CNN_model_dropout = 0.2
 
         self.model = Sequential()
-        self.model.add(Conv2D(self.cfg.CNN_model_l1, (5, 5), activation = "relu", input_shape = self.input_shape, kernel_initializer = self.weight_init))
+        self.model.add(Conv2D(self.cfg.CNN_model_l1, (7, 7), activation = self.cfg.CNN_model_l0_act, input_shape = self.input_shape, kernel_initializer = self.weight_init))
         self.model.add(MaxPooling2D(pool_size = (2,2)))
 
         for i in range(self.cfg.CNN_model_layers1, 1, -1):
-            self.model.add(Conv2D(self.cfg.CNN_model_l1, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
+            self.model.add(Conv2D(self.cfg.CNN_model_l1, (5, 5), activation = self.cfg.CNN_model_l1_act, kernel_initializer = self.weight_init))
             self.model.add(MaxPooling2D(pool_size = (2,2)))
         for i in range(self.cfg.CNN_model_layers2, 1, -1):
-            self.model.add(Conv2D(self.cfg.CNN_model_l2, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
+            self.model.add(Conv2D(self.cfg.CNN_model_l2, (3, 3), activation = self.cfg.CNN_model_l2_act, kernel_initializer = self.weight_init))
             self.model.add(MaxPooling2D(pool_size = (2,2)))
-        # for i in range(self.cfg.CNN_model_layers3, 1, -1):
-        #     self.model.add(Conv2D(self.cfg.CNN_model_l3, (3, 3), activation = "relu", kernel_initializer = self.weight_init))
-        #     self.model.add(MaxPooling2D(pool_size = (2,2)))
+        for i in range(self.cfg.CNN_model_layers3, 1, -1):
+            self.model.add(Conv2D(self.cfg.CNN_model_l3, (1, 1), activation = self.cfg.CNN_model_l3_act, kernel_initializer = self.weight_init))
         
         self.model.add(Dropout(self.cfg.CNN_model_dropout))
 
         self.model.add(GlobalAveragePooling2D())
+        self.model.add(Dense(1024, activation='relu', kernel_initializer = self.weight_init))
         self.model.add(Dense(512, activation='relu', kernel_initializer = self.weight_init))
         self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
 
