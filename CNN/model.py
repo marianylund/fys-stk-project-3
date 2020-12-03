@@ -17,7 +17,7 @@ class Model():
         self.weight_init = "glorot_normal" # TODO: choose
         self.choose_optimizer()
         self.choose_model()
-        self.model.summary()
+        
         print("Finished")
 
     def choose_optimizer(self):
@@ -38,11 +38,14 @@ class Model():
             self.Triple_model()
         elif self.cfg.model_type == "MobileNetV2_transfer_learning":
             self.MobileNetV2_transfer_learning()
+        elif self.cfg.model_type == "simple_NN":
+            self.simple_NN()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
                     loss='categorical_crossentropy', 
-                    metrics=['accuracy']) 
+                    metrics=['accuracy'])
+        self.model.summary() 
 
     def simplest(self):
         self.model = Sequential([
@@ -55,8 +58,9 @@ class Model():
         self.cfg.NN_act = "relu"
 
         self.model = Sequential()
-        self.model.add(Dense(1024, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
-        self.model.add(Dense(800, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Flatten(input_shape=self.input_shape))
+        #self.model.add(Dense(1024, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        #self.model.add(Dense(800, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
         self.model.add(Dense(512, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
         self.model.add(Dense(400, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
         self.model.add(Dense(200, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
