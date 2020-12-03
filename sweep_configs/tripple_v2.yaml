@@ -1,0 +1,52 @@
+name: TrippleV2
+description: "Testing a better version"
+program: train.py
+method: bayes
+metric:
+  name: val_accuracy
+  goal: maximize
+parameters:
+  batch_size:
+    distribution: int_uniform
+    min: 16
+    max: 64
+  learning_rate:
+    distribution: uniform
+    min: 0.005
+    max: 0.02
+  decay_rate:
+    distribution: uniform
+    min: 0.8
+    max: 0.95
+  CNN_model_l0_count:
+    distribution: int_uniform
+    min: 25
+    max: 50
+  CNN_model_l1_count:
+    distribution: int_uniform
+    min: 25
+    max: 50
+  CNN_model_l2_count:
+    distribution: int_uniform
+    min: 20
+    max: 30
+  CNN_model_l3_count:
+    distribution: int_uniform
+    min: 3
+    max: 10
+  CNN_model_l1_size:
+    distribution: int_uniform
+    min: 32
+    max: 120
+  CNN_model_l2_size:
+    distribution: int_uniform
+    min: 64
+    max: 512
+  CNN_model_l3_size:
+    distribution: int_uniform
+    min: 32
+    max: 120
+  decay_steps:
+    distribution: int_uniform
+    min: 10000
+    max: 1000000
