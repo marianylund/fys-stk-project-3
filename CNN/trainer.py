@@ -48,7 +48,7 @@ class Trainer():
         cfg.channels = 1
         cfg.optimizer = "adam"
         cfg.early_stopping_patience = 10
-        cfg.name = "Triple_model" # Here you can change the name of the run, leave empty or do not change if you want a random name
+        cfg.name = "" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
         return cfg
 
