@@ -14,7 +14,20 @@ parameters:
     distribution: int_uniform
     min: 32
     max: 160
-  NN_act:
+  NN_act0:
     values: 
     - relu
     - tanh
+  NN_act1:
+    values: 
+    - relu
+    - tanh
+  NN_act2:
+    values: 
+    - relu
+    - tanh
+  NN_act3:
+    values: 
+    - relu
+    - tanh
+    

@@ -55,16 +55,19 @@ class Model():
         ])
 
     def simple_NN(self):
-        self.cfg.NN_act = "relu"
+        self.cfg.NN_act0 = "relu"
+        self.cfg.NN_act1 = "relu"
+        self.cfg.NN_act2 = "relu"
+        self.cfg.NN_act3 = "relu"
 
         self.model = Sequential()
         self.model.add(Flatten(input_shape=self.input_shape))
         #self.model.add(Dense(1024, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
         #self.model.add(Dense(800, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
-        self.model.add(Dense(512, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
-        self.model.add(Dense(400, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
-        self.model.add(Dense(200, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
-        self.model.add(Dense(50, activation=self.cfg.NN_act, kernel_initializer = self.weight_init))
+        self.model.add(Dense(512, activation=self.cfg.NN_act0, kernel_initializer = self.weight_init))
+        self.model.add(Dense(400, activation=self.cfg.NN_act1, kernel_initializer = self.weight_init))
+        self.model.add(Dense(200, activation=self.cfg.NN_act2, kernel_initializer = self.weight_init))
+        self.model.add(Dense(50, activation=self.cfg.NN_act3, kernel_initializer = self.weight_init))
         
         self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
 
