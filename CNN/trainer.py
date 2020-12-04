@@ -56,7 +56,7 @@ class Trainer():
     def set_up_configs(self):
         """Here are all the default configurations, all of them are used somewhere else in the code"""
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
-        cfg.image_size = 400
+        cfg.image_size = 224
 
         cfg.model_type = "TripleV2" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2, MobileNetV2_trainable, MobileNetV3_trainable]
         cfg.optimizer = 'adam' # [sgd, adam, adagrad]

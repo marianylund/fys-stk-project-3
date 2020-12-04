@@ -14,18 +14,6 @@ parameters:
     distribution: int_uniform
     min: 0.01
     max: 0.2
-  CNN_model_l1_count:
-    distribution: int_uniform
-    min: 2
-    max: 3
-  CNN_model_l2_count:
-    distribution: int_uniform
-    min: 2
-    max: 3
-  CNN_model_l3_count:
-    distribution: int_uniform
-    min: 2
-    max: 3
   CNN_model_l0_size:
     distribution: int_uniform
     min: 32
