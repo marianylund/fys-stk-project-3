@@ -78,17 +78,6 @@ class Model():
         self.model.add(Dense(self.cfg.num_classes, activation='softmax', kernel_initializer = self.weight_init))
 
     def TripleV2(self):
-        self.cfg.CNN_model_l0_size = 32
-        self.cfg.CNN_model_l1_size = 32
-        self.cfg.CNN_model_l2_size = 64
-        self.cfg.CNN_model_l3_size = 16
-
-        self.cfg.CNN_model_l1_count = 3
-        self.cfg.CNN_model_l2_count = 3
-        self.cfg.CNN_model_l3_count = 3
-
-        self.cfg.CNN_model_dropout = 0.2
-
         self.model = Sequential()
         self.model.add(Conv2D(self.cfg.CNN_model_l0_size, (7, 7), activation = "tanh", input_shape = self.input_shape, kernel_initializer = self.weight_init))
         self.model.add(MaxPooling2D(pool_size = (2,2)))
@@ -103,7 +92,7 @@ class Model():
             self.model.add(Conv2D(self.cfg.CNN_model_l3_size, (1, 1), activation = "tanh", kernel_initializer = self.weight_init))
             self.model.add(MaxPooling2D(pool_size = (2,2)))
 
-        self.model.add(Dropout(self.cfg.CNN_model_dropout))
+        self.model.add(Dropout(self.cfg.dropout))
         
         self.model.add(GlobalAveragePooling2D())
         self.model.add(Dense(1024, activation='relu', kernel_initializer = self.weight_init))
