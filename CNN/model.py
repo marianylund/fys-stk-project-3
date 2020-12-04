@@ -5,6 +5,7 @@ import tensorflow as tf
 from keras.optimizers import Adam, Adagrad, SGD
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
+from keras.layers.normalization import BatchNormalization
 # Transfer learning:
 # https://keras.io/api/applications/
 from keras.applications import MobileNetV2
@@ -49,6 +50,8 @@ class Model():
             self.TripleV2()
         elif self.cfg.model_type == "MobileNetV2_trainable":
             self.MobileNetV2_trainable()
+        elif self.cfg.model_type == "MobileNetV3_trainable":
+            self.MobileNetV3_trainable()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
@@ -158,7 +161,10 @@ class Model():
         self.cfg.Dense_activations = "relu"
         self.cfg.MobileNet_alpha = 1.0
         self.cfg.MobileNet_dropout = 0.001
-        self.cfg.layers_to_freeze = 70
+        self.cfg.layers_to_freeze = 100
+        self.cfg.Dense0 = 224
+        self.cfg.Dense1 = 50
+
 
         MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
         print("Layers: ", len(MobileNetV2_layer.layers))
@@ -168,8 +174,33 @@ class Model():
         self.model = Sequential([
             MobileNetV2_layer,
             GlobalAveragePooling2D(),
-            Dense(224, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
-            Dense(50, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
+            Dense(self.cfg.Dense0, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
+            Dense(self.cfg.Dense1, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
+            Dense(self.cfg.num_classes, activation='softmax'),
+        ])
+    
+    def MobileNetV3_trainable(self):
+        self.cfg.Dense_activations = "tanh"
+        self.cfg.MobileNet_alpha = 0.5
+        self.cfg.Dense_dropout = 0.5
+        self.cfg.layers_to_freeze = 150
+        self.cfg.Dense0 = 512
+        self.cfg.Dense1 = 350
+
+
+        MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
+        print("Layers: ", len(MobileNetV2_layer.layers))
+        for l in MobileNetV2_layer.layers:
+            #print(l)
+            if not isinstance(l, BatchNormalization):
+                l.trainable = False
+        #MobileNetV2_layer.summary()
+        self.model = Sequential([
+            MobileNetV2_layer,
+            Dropout(self.cfg.Dense_dropout),
+            GlobalAveragePooling2D(),
+            Dense(self.cfg.Dense0, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
+            Dense(self.cfg.Dense1, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
             Dense(self.cfg.num_classes, activation='softmax'),
         ])
         
