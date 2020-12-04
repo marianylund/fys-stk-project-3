@@ -18,6 +18,10 @@ parameters:
     distribution: uniform
     min: 0.8
     max: 0.95
+  decay_steps:
+    distribution: int_uniform
+    min: 10000
+    max: 1000000
   CNN_model_l0_count:
     distribution: int_uniform
     min: 25
@@ -46,7 +50,4 @@ parameters:
     distribution: int_uniform
     min: 32
     max: 120
-  decay_steps:
-    distribution: int_uniform
-    min: 10000
-    max: 1000000
+

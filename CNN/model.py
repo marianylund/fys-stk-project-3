@@ -47,6 +47,8 @@ class Model():
             self.simple_NN()
         elif self.cfg.model_type == "TripleV2":
             self.TripleV2()
+        elif self.cfg.model_type == "MobileNetV2_trainable":
+            self.MobileNetV2_trainable()
         else:
             raise Exception("This model type was not found: " + self.cfg.model_type)
         self.model.compile(optimizer = self.optimizer, 
@@ -149,6 +151,25 @@ class Model():
             Dense(1024, activation='relu'),
             Dense(1024, activation='relu'),
             Dense(512, activation='relu'),
+            Dense(self.cfg.num_classes, activation='softmax'),
+        ])
+    
+    def MobileNetV2_trainable(self):
+        self.cfg.Dense_activations = "relu"
+        self.cfg.MobileNet_alpha = 1.0
+        self.cfg.MobileNet_dropout = 0.001
+        self.cfg.layers_to_freeze = 70
+
+        MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
+        print("Layers: ", len(MobileNetV2_layer.layers))
+        for l in MobileNetV2_layer.layers[:self.cfg.layers_to_freeze]:
+            l.trainable = False
+        #MobileNetV2_layer.summary()
+        self.model = Sequential([
+            MobileNetV2_layer,
+            GlobalAveragePooling2D(),
+            Dense(224, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
+            Dense(50, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
             Dense(self.cfg.num_classes, activation='softmax'),
         ])
         

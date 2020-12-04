@@ -42,10 +42,10 @@ class Trainer():
 
     def overwrite_configs(self, cfg):
         """Feel free to overwrite any of the configurations"""
-        cfg.epochs = 30
+        #cfg.epochs = 30
         cfg.image_size = 224
         cfg.learning_rate = 0.001
-        cfg.channels = 1
+        cfg.channels = 3
         cfg.name = "" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
         return cfg
@@ -55,7 +55,7 @@ class Trainer():
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
         cfg.image_size = 400
 
-        cfg.model_type = "TripleV2" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2]
+        cfg.model_type = "MobileNetV2_trainable" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2, MobileNetV2_trainable]
         cfg.optimizer = 'adam' # [sgd, adam, adagrad]
         cfg.channels = 3 # has to be 3 for transfer learning
         cfg.dense_layer_units = 1 # for transfer learning
