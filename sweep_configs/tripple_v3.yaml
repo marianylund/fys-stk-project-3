@@ -8,7 +8,7 @@ metric:
 parameters:
   batch_size:
     distribution: int_uniform
-    min: 15
+    min: 32
     max: 64
   dropout:
     distribution: int_uniform
@@ -16,31 +16,31 @@ parameters:
     max: 0.2
   CNN_model_l1_count:
     distribution: int_uniform
-    min: 1
+    min: 2
     max: 3
   CNN_model_l2_count:
     distribution: int_uniform
-    min: 1
+    min: 2
     max: 3
   CNN_model_l3_count:
     distribution: int_uniform
-    min: 1
+    min: 2
     max: 3
   CNN_model_l0_size:
     distribution: int_uniform
     min: 32
-    max: 112
+    max: 64
   CNN_model_l1_size:
     distribution: int_uniform
     min: 32
-    max: 112
+    max: 64
   CNN_model_l2_size:
     distribution: int_uniform
     min: 64
-    max: 216
+    max: 120
   CNN_model_l3_size:
     distribution: int_uniform
     min: 16
-    max: 64
+    max: 32
 
 

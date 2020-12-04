@@ -44,10 +44,10 @@ class Trainer():
         """Feel free to overwrite any of the configurations"""
         cfg.epochs = 30
         cfg.image_size = 224
-        cfg.learning_rate = 0.01
-        cfg.decay_rate = 0.9 # -1 to turn it off, 0.9 usually
-        cfg.decay_steps = 10000
-        cfg.batch_size = 64
+        cfg.learning_rate = 0.011410793024097232
+        cfg.decay_rate = 0.9033169911446738 # -1 to turn it off, 0.9 usually
+        cfg.decay_steps = 406574
+        cfg.batch_size = 38
         cfg.channels = 1
         cfg.name = "" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
@@ -63,9 +63,9 @@ class Trainer():
         cfg.channels = 3 # has to be 3 for transfer learning
         cfg.dense_layer_units = 1 # for transfer learning
 
-        cfg.CNN_model_l1_count = 3
-        cfg.CNN_model_l2_count = 3
-        cfg.CNN_model_l3_count = 3
+        cfg.CNN_model_l1_count = 2
+        cfg.CNN_model_l2_count = 2
+        cfg.CNN_model_l3_count = 2
         
         cfg.CNN_model_l0_size = 32
         cfg.CNN_model_l1_size = 32
