@@ -189,16 +189,3 @@ class Model():
             Dense(self.cfg.Dense1, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
             Dense(self.cfg.num_classes, activation='softmax'),
         ])
-        
-        """
-          decay_rate:
-    distribution: uniform
-    min: 0.7
-    max: 0.8
-  decay_steps:
-    distribution: int_uniform
-    min: 800000
-    max: 1000000"""
-    @staticmethod
-    def get_model_name(k):
-        return 'model_'+str(k)+'.h5'
