@@ -160,7 +160,6 @@ class Model():
     def MobileNetV2_trainable(self):
         self.cfg.Dense_activations = "relu"
         self.cfg.MobileNet_alpha = 1.0
-        self.cfg.MobileNet_dropout = 0.001
         self.cfg.layers_to_freeze = 100
         self.cfg.Dense0 = 224
         self.cfg.Dense1 = 50
@@ -181,12 +180,10 @@ class Model():
     
     def MobileNetV3_trainable(self):
         self.cfg.Dense_activations = "tanh"
-        self.cfg.MobileNet_alpha = 0.5
-        self.cfg.Dense_dropout = 0.5
-        self.cfg.layers_to_freeze = 150
+        self.cfg.MobileNet_alpha = 1.0
+        self.cfg.dropout = 0.2
         self.cfg.Dense0 = 512
         self.cfg.Dense1 = 350
-
 
         MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
         print("Layers: ", len(MobileNetV2_layer.layers))
@@ -197,13 +194,22 @@ class Model():
         #MobileNetV2_layer.summary()
         self.model = Sequential([
             MobileNetV2_layer,
-            Dropout(self.cfg.Dense_dropout),
+            Dropout(self.cfg.dropout),
             GlobalAveragePooling2D(),
             Dense(self.cfg.Dense0, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
             Dense(self.cfg.Dense1, activation=self.cfg.Dense_activations, kernel_initializer = self.weight_init),
             Dense(self.cfg.num_classes, activation='softmax'),
         ])
         
+        """
+          decay_rate:
+    distribution: uniform
+    min: 0.7
+    max: 0.8
+  decay_steps:
+    distribution: int_uniform
+    min: 800000
+    max: 1000000"""
     @staticmethod
     def get_model_name(k):
         return 'model_'+str(k)+'.h5'

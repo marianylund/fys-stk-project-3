@@ -66,7 +66,7 @@ class Trainer():
         cfg.decay_rate = -1 # -1 to turn it off, 0.9 usually
         cfg.decay_steps = 10000
         cfg.batch_size = 32
-        cfg.epochs = 30
+        cfg.epochs = 5
 
         cfg.early_stopping_patience = 5
 
