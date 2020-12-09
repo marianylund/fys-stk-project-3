@@ -6,8 +6,7 @@ from keras.optimizers import Adam, Adagrad, SGD
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
 from keras.layers.normalization import BatchNormalization
-# Transfer learning:
-# https://keras.io/api/applications/
+
 from keras.applications import MobileNetV2
 
 class Model():
@@ -15,7 +14,7 @@ class Model():
         print("Start creating model")        
         self.cfg = cfg
         self.input_shape = (self.cfg.image_size, self.cfg.image_size, self.cfg.channels)
-        self.weight_init = "glorot_normal" # TODO: choose
+        self.weight_init = "glorot_normal" 
         self.choose_optimizer()
         self.choose_model()
         
@@ -27,7 +26,7 @@ class Model():
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=self.cfg.learning_rate,
                                         decay_steps=self.cfg.decay_steps,
                                         decay_rate=self.cfg.decay_rate)
-        self.lr_schedule = self.cfg.learning_rate # TODO: lr schedulers https://keras.io/api/optimizers/learning_rate_schedules/
+        self.lr_schedule = lr_schedule
 
         if self.cfg.optimizer == "sgd" or self.cfg.optimizer == "sdg":
             self.optimizer = SGD(learning_rate=self.lr_schedule)

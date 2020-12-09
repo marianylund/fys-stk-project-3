@@ -23,8 +23,6 @@ class Trainer():
             wandb.run.notes = self.cfg.notes
 
         early_stopping = EarlyStopping(monitor='val_loss', patience=self.cfg.early_stopping_patience, mode='auto', restore_best_weights=True)
-        #define the model checkpoint callback -> this will keep on saving the model as a physical file
-        # model_checkpoint = ModelCheckpoint('fas_mnist_1.h5', verbose=1, save_best_only=True) #model = load_model('fas_mnist_1.h5') # to load the
         logging = WandbCallback(data_type="image", generator=self.dl.validation_generator, labels=get_chosen_bricks_list())
 
         history = self.model.fit(
@@ -37,7 +35,6 @@ class Trainer():
             callbacks=[early_stopping, logging]
         )
 
-        #OBS! For now it predicts randomly on train or valid data, will fix test dataset later
         self.make_predictions(self.model, self.dl, self.cfg) # comment out to disable making predications to w&b
 
     def overwrite_configs(self, cfg):
@@ -48,7 +45,7 @@ class Trainer():
         cfg.decay_rate = 0.9033169911446738 # -1 to turn it off, 0.9 usually
         cfg.decay_steps = 406574
         cfg.batch_size = 38
-        cfg.channels = 1
+        cfg.channels = 3
         cfg.name = "" # Here you can change the name of the run, leave empty or do not change if you want a random name
         cfg.notes = "" # A longer description of the run, like a -m commit message in git. This helps you remember what you were doing when you ran this run.
         return cfg
@@ -58,7 +55,7 @@ class Trainer():
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
         cfg.image_size = 224
 
-        cfg.model_type = "TripleV2" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2, MobileNetV2_trainable, MobileNetV3_trainable]
+        cfg.model_type = "MobileNetV3_trainable" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2, MobileNetV2_trainable, MobileNetV3_trainable]
         cfg.optimizer = 'adam' # [sgd, adam, adagrad]
         cfg.channels = 3 # has to be 3 for transfer learning
         cfg.dense_layer_units = 1 # for transfer learning

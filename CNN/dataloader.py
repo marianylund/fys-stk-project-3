@@ -223,29 +223,4 @@ def print_status():
     print("Chosen bricks: ", get_chosen_bricks_list())
     show_all_chosen_bricks_as_images()
 
-# import wandb
-# import matplotlib.pylab as plt
-# if __name__ == "__main__":
-#     cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
-#     cfg.image_size = 100
-
-#     cfg.model_type = "simplest" # [simplest]
-#     cfg.optimizer = 'adam' # TODO: does not do anything yet, here just for reminder
-
-#     cfg.learning_rate = 0.01
-#     cfg.batch_size = 32
-#     cfg.epochs = 30
-#     cfg.num_classes = 10 # changing it does not do much
-#     cfg.early_stopping_patience = 5
-#     dl = DataLoader(cfg)
-    
-#     pic = dl.get_random_test_image_by_index(0)
-#     img = pic
-#     img = cv2.resize(img, (400, 400), interpolation=cv2.INTER_NEAREST)
-#     img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGBA)
-#     font = cv2.FONT_HERSHEY_DUPLEX
-#     cv2.putText(img, 'True Name', (10, 328), font, 0.5, (255,255,255))
-#     #img = cv2.cvtColor(dl.get_random_test_image("3004"), cv2.COLOR_GRAY2RGB)
-#     plt.imshow(img)
-#     plt.show()
 

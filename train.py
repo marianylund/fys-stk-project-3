@@ -1,4 +1,4 @@
 from CNN.trainer import Trainer
 
-print("Hello")
+print("Staring training")
 trainer = Trainer()
