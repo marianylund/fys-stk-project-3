@@ -31,8 +31,20 @@ def set_config_for_tripple():
     cfg.model_type = "TripleV2" # [Triple_model, MobileNetV2_transfer_learning, simple_NN, TripleV2, MobileNetV2_trainable, MobileNetV3_trainable]
     cfg.optimizer = 'adam'
     cfg.channels = 1 
+
+    cfg.CNN_model_l1_count = 2
+    cfg.CNN_model_l2_count = 2
+    cfg.CNN_model_l3_count = 2
+    
+    cfg.CNN_model_l0_size = 32
+    cfg.CNN_model_l1_size = 32
+    cfg.CNN_model_l2_size = 64
+    cfg.CNN_model_l3_size = 16
+
     cfg.name = "" 
     cfg.notes = "" 
+
+
     cfg.dropout = 0.2
     cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
     cfg.learning_rate = 0.01141
