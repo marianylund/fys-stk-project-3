@@ -2,7 +2,8 @@
 
 ### Set-up
 
-One needs to have following packages installed: `tensorflow`, `keras`, `wandb`. To install those run `pip install [nameofthepackage]`. In addition one needs to have a wandb account and log in by running `wandb login [apiloginnumber]`.
+One needs to have following packages installed: `tensorflow`, `keras`, `wandb`. To install those run `pip install [nameofthepackage]`. 
+In addition, if one wants to use wandb, one needs to have a wandb account and log in by running `wandb login [apiloginnumber]`. See project runs on wandb [here](https://wandb.ai/fys-stk-gang/project3). But it is possible to run training without logging in.
 
 ### Running
 Once everything is installed and set-up correctly. To run the training:
@@ -10,8 +11,7 @@ Once everything is installed and set-up correctly. To run the training:
 ```
 python -w ignore 'train.py'
 ```
-
-One can change the configurations in the `trainer.py` class. To change different model architectures, change the name of the model type in the configurations.
+There you will be prompted if you have logged in to wandb or not, if not, wandb will be disabled. Then you can choose to train one of the 3 pre-configurated models.
 
 ### Report folder
 Contains Latex code and pdf of the report

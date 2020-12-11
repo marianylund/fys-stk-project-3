@@ -1,4 +1,4 @@
-# Contains the structure on the network, forward and backwards passes
+
 import pathlib
 
 import tensorflow as tf
@@ -10,6 +10,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.applications import MobileNetV2
 
 class Model():
+    """Contains different model structures and sets it up based on the configurations"""
     def __init__(self, cfg):
         print("Start creating model")        
         self.cfg = cfg
@@ -67,7 +68,7 @@ class Model():
 
     def simple_NN(self):
         self.cfg.NN_act0 = "relu"
-        self.cfg.NN_act1 = "relu"
+        self.cfg.NN_act1 = "tanh"
 
         self.model = Sequential()
         self.model.add(Flatten(input_shape=self.input_shape))
@@ -146,13 +147,6 @@ class Model():
         ])
     
     def MobileNetV2_trainable(self):
-        self.cfg.Dense_activations = "relu"
-        self.cfg.MobileNet_alpha = 1.0
-        self.cfg.layers_to_freeze = 100
-        self.cfg.Dense0 = 224
-        self.cfg.Dense1 = 50
-
-
         MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
         print("Layers: ", len(MobileNetV2_layer.layers))
         for l in MobileNetV2_layer.layers[:self.cfg.layers_to_freeze]:
@@ -174,9 +168,7 @@ class Model():
         self.cfg.Dense1 = 350
 
         MobileNetV2_layer = MobileNetV2(weights='imagenet', include_top=False, input_shape=self.input_shape)
-        print("Layers: ", len(MobileNetV2_layer.layers))
         for l in MobileNetV2_layer.layers:
-            #print(l)
             if not isinstance(l, BatchNormalization):
                 l.trainable = False
         #MobileNetV2_layer.summary()

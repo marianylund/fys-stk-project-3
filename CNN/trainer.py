@@ -1,4 +1,3 @@
-# Responsible for running the training, saving checkpoints and updating the graphs
 # Followed the Intro to Keras example: https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV#scrollTo=gUaHHRYo3cuo
 from keras.callbacks import EarlyStopping
 
@@ -11,19 +10,26 @@ from cv2 import cv2
 import numpy as np
 
 class Trainer():
-    def __init__(self):
-        self.cfg = self.set_up_configs()
+    """Responsible for running the training, sending info to wandb and making predictions"""
+    def __init__(self, cfg = None, wandb_on = True):
+        if cfg == None:
+            self.cfg = self.set_up_configs()
+        else:
+            self.cfg = cfg
         self.dl = DataLoader(self.cfg)
         self.model = Model(self.cfg).model
 
-        wandb.init(project="project3", entity="fys-stk-gang", config = self.cfg)
-        if self.cfg.name != "":
-            wandb.run.name = self.cfg.name
-        if self.cfg.notes != "":
-            wandb.run.notes = self.cfg.notes
-
         early_stopping = EarlyStopping(monitor='val_loss', patience=self.cfg.early_stopping_patience, mode='auto', restore_best_weights=True)
-        logging = WandbCallback(data_type="image", generator=self.dl.validation_generator, labels=get_chosen_bricks_list())
+        run_callbacks = [early_stopping]
+
+        if wandb_on:
+            wandb.init(project="project3", entity="fys-stk-gang", config = self.cfg)
+            if self.cfg.name != "":
+                wandb.run.name = self.cfg.name
+            if self.cfg.notes != "":
+                wandb.run.notes = self.cfg.notes
+            logging = WandbCallback(data_type="image", generator=self.dl.validation_generator, labels=get_chosen_bricks_list())
+            run_callbacks.append(logging)
 
         history = self.model.fit(
             self.dl.train_generator,
@@ -32,13 +38,13 @@ class Trainer():
             validation_data = self.dl.validation_generator,
             validation_steps=len(self.dl.validation_generator),
             validation_freq = 1,
-            callbacks=[early_stopping, logging]
+            callbacks=run_callbacks
         )
 
-        self.make_predictions(self.model, self.dl, self.cfg) # comment out to disable making predications to w&b
+        self.make_predictions(self.model, self.dl, self.cfg, wandb_on)
 
     def overwrite_configs(self, cfg):
-        """Feel free to overwrite any of the configurations"""
+        """Function to override the default configurations"""
         cfg.epochs = 30
         cfg.image_size = 224
         cfg.learning_rate = 0.011410793024097232
@@ -51,7 +57,7 @@ class Trainer():
         return cfg
 
     def set_up_configs(self):
-        """Here are all the default configurations, all of them are used somewhere else in the code"""
+        """Contains the default configurations"""
         cfg = wandb.config # Config is a variable that holds and saves hyperparameters and inputs
         cfg.image_size = 224
 
@@ -70,22 +76,28 @@ class Trainer():
         cfg.CNN_model_l3_size = 16
 
         cfg.dropout = 0.2
-        cfg.num_classes = 10 # changing it does not do much
+        cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
         cfg.learning_rate = 0.01
         cfg.decay_rate = -1 # -1 to turn it off, 0.9 usually
         cfg.decay_steps = 10000
         cfg.batch_size = 32
         cfg.epochs = 5
+        cfg.name = "" 
+        cfg.notes = "" 
 
         cfg.early_stopping_patience = 5
 
         return self.overwrite_configs(cfg) # has to be last
 
-    def make_predictions(self, cnn_model:Model, dl:DataLoader, cfg):
+    def make_predictions(self, cnn_model:Model, dl:DataLoader, cfg, wandb_on = True):
         """Shows predicted images in w&b with their top 3 prediction names"""
         predicted_images = []
         chosen_bricks = dl.labels
         num_of_chosen_bricks = len(chosen_bricks)
+
+        if not wandb_on:
+            plt.figure(figsize=(10,10))
+    
         for i in range(num_of_chosen_bricks):
             brick_name = chosen_bricks[i]
             pic = dl.get_random_test_image_by_index(i)
@@ -110,11 +122,23 @@ class Trainer():
             cv2.putText(img, 'True Name : %s' % brick_name, (10, 328), font, 0.5, (255,255,255))
             for k, t in enumerate(text):
                 cv2.putText(img, t, (10, 348+k*18), font, 0.5, (255,255,255))
-                
-            # Add predicted image from test dataset with annotations to array
-            predicted_images.append(wandb.Image(img, caption="Actual: %s" % brick_name))     
+
+            if wandb_on:    
+                # Add predicted image from test dataset with annotations to array
+                predicted_images.append(wandb.Image(img, caption="Actual: %s" % brick_name))
+            else:
+                plt.subplot(2,5,i+1)
+                plt.xticks([])
+                plt.yticks([])
+                plt.grid(False)
+                plt.imshow(img, interpolation='nearest')
+                plt.xlabel("Actual: %s" % brick_name)
         
-        wandb.log({"predictions": predicted_images})
+        if wandb_on:
+            wandb.log({"predictions": predicted_images})
+        else:
+            plt.show()  
+
 
     
 
