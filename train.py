@@ -47,10 +47,10 @@ def set_config_for_tripple():
 
     cfg.dropout = 0.2
     cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
-    cfg.learning_rate = 0.007625194291641324
+    cfg.learning_rate = 0.001
     cfg.decay_rate = -1 
     cfg.decay_steps = 10000
-    cfg.batch_size = 22
+    cfg.batch_size = 32
     cfg.epochs = 25
 
     cfg.early_stopping_patience = 20
