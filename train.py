@@ -15,13 +15,13 @@ def set_config_for_simple_nn():
     cfg.notes = "" 
     cfg.dropout = 0.2
     cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
-    cfg.learning_rate = 0.009115346102532486
+    cfg.learning_rate = 0.0081
     cfg.decay_rate = -1 # -1 to turn it off, 0.9 usually
     cfg.decay_steps = 10000
-    cfg.batch_size = 117
+    cfg.batch_size = 59
     cfg.epochs = 20
 
-    cfg.early_stopping_patience = 5
+    cfg.early_stopping_patience = 20
     return cfg
 
 def set_config_for_tripple():
@@ -32,9 +32,9 @@ def set_config_for_tripple():
     cfg.optimizer = 'adam'
     cfg.channels = 1 
 
-    cfg.CNN_model_l1_count = 2
-    cfg.CNN_model_l2_count = 2
-    cfg.CNN_model_l3_count = 2
+    cfg.CNN_model_l1_count = 3
+    cfg.CNN_model_l2_count = 3
+    cfg.CNN_model_l3_count = 3
     
     cfg.CNN_model_l0_size = 32
     cfg.CNN_model_l1_size = 32
@@ -47,13 +47,13 @@ def set_config_for_tripple():
 
     cfg.dropout = 0.2
     cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
-    cfg.learning_rate = 0.01141
-    cfg.decay_rate = 0.9033 # -1 to turn it off, 0.9 usually
-    cfg.decay_steps = 406574
-    cfg.batch_size = 38
+    cfg.learning_rate = 0.007625194291641324
+    cfg.decay_rate = -1 
+    cfg.decay_steps = 10000
+    cfg.batch_size = 22
     cfg.epochs = 25
 
-    cfg.early_stopping_patience = 5
+    cfg.early_stopping_patience = 20
     return cfg
 
 def set_config_for_transfer_learning():
@@ -74,12 +74,12 @@ def set_config_for_transfer_learning():
     cfg.dropout = 0.0017101185244705718
     cfg.num_classes = 10 # changing it does not do much, just a value to keep track of
     cfg.learning_rate = 0.01902516532710387
-    cfg.decay_rate = 0.8140472019082363 # -1 to turn it off, 0.9 usually
-    cfg.decay_steps = 826146
+    cfg.decay_rate = -1 
+    cfg.decay_steps = 10000
     cfg.batch_size = 53
     cfg.epochs = 25
 
-    cfg.early_stopping_patience = 5
+    cfg.early_stopping_patience = 20
     return cfg
 
 print('Have you logged in to wandb (1 for yes, 0 for no)?')

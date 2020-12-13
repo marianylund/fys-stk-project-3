@@ -28,7 +28,7 @@ class Model():
             lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=self.cfg.learning_rate,
                                         decay_steps=self.cfg.decay_steps,
                                         decay_rate=self.cfg.decay_rate)
-        self.lr_schedule = lr_schedule
+        self.lr_schedule = self.cfg.learning_rate
 
         if self.cfg.optimizer == "sgd" or self.cfg.optimizer == "sdg":
             self.optimizer = SGD(learning_rate=self.lr_schedule)
